@@ -74,6 +74,8 @@ extern cvar_t sv_unlagpush;
 extern cvar_t sv_unlagsamples;
 extern cvar_t mp_consistency;
 extern cvar_t sv_voiceenable;
+extern cvar_t sv_voicecodec;
+extern cvar_t sv_voicequality;
 
 extern qboolean nofind;
 

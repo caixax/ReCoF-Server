@@ -47,14 +47,18 @@ cvar_t sv_edgefriction = { "edgefriction", "2", FCVAR_SERVER, 0.0f, NULL };
 cvar_t sv_maxspeed = { "sv_maxspeed", "320", FCVAR_SERVER, 0.0f, NULL };
 cvar_t sv_accelerate = { "sv_accelerate", "10", FCVAR_SERVER, 0.0f, NULL };
 cvar_t sv_footsteps = { "mp_footsteps", "1", FCVAR_SERVER, 0.0f, NULL };
-cvar_t sv_rollspeed = { "sv_rollspeed", "0.0", 0, 0.0f, NULL };
-cvar_t sv_rollangle = { "sv_rollangle", "0.0", 0, 0.0f, NULL };
+// Cry of Fear (and Valve's engine up to 5936): view roll while strafing is on by default
+cvar_t sv_rollspeed = { "sv_rollspeed", "200", 0, 0.0f, NULL };
+cvar_t sv_rollangle = { "sv_rollangle", "2.0", 0, 0.0f, NULL };
 cvar_t sv_unlag = { "sv_unlag", "1", 0, 0.0f, NULL };
 cvar_t sv_maxunlag = { "sv_maxunlag", "0.5", 0, 0.0f, NULL };
 cvar_t sv_unlagpush = { "sv_unlagpush", "0.0", 0, 0.0f, NULL };
 cvar_t sv_unlagsamples = { "sv_unlagsamples", "1", 0, 0.0f, NULL };
 cvar_t mp_consistency = { "mp_consistency", "1", FCVAR_SERVER, 0.0f, NULL };
 cvar_t sv_voiceenable = { "sv_voiceenable", "1", FCVAR_SERVER | FCVAR_ARCHIVE, 0.0f, NULL };
+// Cry of Fear: the codec and quality its clients are told to use (svc_voiceinit)
+cvar_t sv_voicecodec = { "sv_voicecodec", "voice_miles", 0, 0.0f, NULL };
+cvar_t sv_voicequality = { "sv_voicequality", "3", 0, 0.0f, NULL };
 
 clc_func_t sv_clcfuncs[] = {
 	{ clc_bad,             "clc_bad",             nullptr                      },

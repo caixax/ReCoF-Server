@@ -5945,9 +5945,57 @@ void SV_WriteVoiceCodec(sizebuf_t *pBuf)
 
 void EXT_FUNC SV_WriteVoiceCodec_internal(sizebuf_t *pBuf)
 {
+	// Cry of Fear: the codec and quality from sv_voicecodec and sv_voicequality, as its engine (and Valve's up to
+	// 5936) sends them; its client starts no voice on an empty codec. Single player sends none.
 	MSG_WriteByte(pBuf, svc_voiceinit);
-	MSG_WriteString(pBuf, "");
-	MSG_WriteByte(pBuf, 0);
+	if (g_psvs.maxclients <= 1)
+		MSG_WriteString(pBuf, "");
+	else
+		MSG_WriteString(pBuf, sv_voicecodec.string);
+	MSG_WriteByte(pBuf, (int)sv_voicequality.value);
+}
+
+// Cry of Fear: a change of sv_voicecodec or sv_voicequality is sent to every client at once (its engine's
+// SV_CheckVoiceChanges, called from SV_Frame)
+void SV_CheckVoiceChanges(void)
+{
+	static char voice_codec[64];
+	static qboolean initialised;
+	static int quality;
+
+	if (!initialised)
+	{
+		initialised = TRUE;
+		Q_strncpy(voice_codec, sv_voicecodec.string, sizeof(voice_codec) - 1);
+		voice_codec[sizeof(voice_codec) - 1] = '\0';
+		quality = (int)sv_voicequality.value;
+		return;
+	}
+
+	if (!Q_stricmp(voice_codec, sv_voicecodec.string) && quality == (int)sv_voicequality.value)
+		return;
+
+	Q_strncpy(voice_codec, sv_voicecodec.string, sizeof(voice_codec) - 1);
+	voice_codec[sizeof(voice_codec) - 1] = '\0';
+	quality = (int)sv_voicequality.value;
+
+	byte data[128];
+	sizebuf_t buf;
+	Q_memset(&buf, 0, sizeof(buf));
+	buf.buffername = "Voice";
+	buf.data = data;
+	buf.maxsize = sizeof(data);
+	SV_WriteVoiceCodec(&buf);
+
+	for (int i = 0; i < g_psvs.maxclients; i++)
+	{
+		client_t *cl = &g_psvs.clients[i];
+		if (!cl->connected || cl->fakeclient)
+			continue;
+
+		Netchan_CreateFragments(TRUE, &cl->netchan, &buf);
+		Netchan_FragSend(&cl->netchan);
+	}
 }
 
 void SV_CreateBaseline(void)
@@ -8381,6 +8429,7 @@ void EXT_FUNC SV_Frame_Internal()
 	SV_SendClientMessages();
 	SV_CheckMapDifferences();
 	SV_GatherStatistics();
+	SV_CheckVoiceChanges();	// Cry of Fear
 	Steam_RunFrame();
 }
 
@@ -8509,6 +8558,8 @@ void SV_Init(void)
 
 	Cvar_RegisterVariable(&sv_failuretime);
 	Cvar_RegisterVariable(&sv_voiceenable);
+	Cvar_RegisterVariable(&sv_voicecodec);
+	Cvar_RegisterVariable(&sv_voicequality);
 	Cvar_RegisterVariable(&rcon_password);
 	Cvar_RegisterVariable(&sv_enableoldqueries);
 	Cvar_RegisterVariable(&mp_consistency);

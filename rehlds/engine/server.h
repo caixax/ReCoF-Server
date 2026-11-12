@@ -578,6 +578,7 @@ void SV_ClearCaches(void);
 void SV_PropagateCustomizations(void);
 void SV_WriteVoiceCodec(sizebuf_t *pBuf);
 void SV_WriteVoiceCodec_internal(sizebuf_t *pBuf);
+void SV_CheckVoiceChanges(void);
 void SV_CreateBaseline(void);
 void SV_BroadcastCommand(char *fmt, ...);
 void SV_BuildReconnect(sizebuf_t *msg);
