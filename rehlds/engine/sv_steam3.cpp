@@ -304,6 +304,8 @@ void CSteam3Server::Activate()
 		CRehldsPlatformHolder::get()->SteamGameServer()->SetModDir(gamedir);
 		CRehldsPlatformHolder::get()->SteamGameServer()->SetDedicatedServer(g_pcls.state == ca_dedicated);
 		CRehldsPlatformHolder::get()->SteamGameServer()->SetGameDescription(gEntityInterface.pfnGetGameDescription());
+		// ReCoF Server: the tag ReCoF's server list asks Steam for, so it shows the servers ReCoF players can join
+		CRehldsPlatformHolder::get()->SteamGameServer()->SetGameTags("recof");
 		CRehldsPlatformHolder::get()->SteamGameServer()->LogOnAnonymous();
 		m_bLogOnResult = false;
 
