@@ -31,13 +31,15 @@ Start it with start_server.bat (Windows) or ./start_server.sh (Linux). They star
 
 Open UDP port 27015 (or yours) in the firewall and, at home, forward it in the router.
 
+The address to give players: type status in the server console. The public line is the address Steam sees the server at, which players outside your network join; players on your own network use the tcp/ip line. Steam lists the server under Cry of Fear, so it also shows in Steam's server browser (View, Game Servers).
+
 If the console says "Could not establish connection to Steam servers", look at the "Server IP address" line above it: on a machine with more than one network adapter (WSL, Hyper-V, a VPN) the server can pick one with no internet. Set IP in the start script to the machine's own address (Windows: ipconfig, the adapter with a default gateway; Linux: ip addr).
 
 
 3. Players
 ----------
 
-Players need ReCoF (0.2.3 or later): the server turns away the original game unless server.cfg sets rc_require_recof 0. To join, open the console in the game and type: connect <server address>:27015
+Players need ReCoF (0.2.3 or later): the server turns away the original game unless server.cfg sets rc_require_recof 0. To join, open the console in the game and type: connect <server address>:27015, or use Join a server in the ReCoF Launcher. The game's own server list (Join Server) does not find servers: it is the original game's, and its internet list no longer works with today's Steam.
 
 
 4. Plugins
