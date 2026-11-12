@@ -43,7 +43,7 @@ Players need ReCoF (0.2.3 or later): the server turns away the original game unl
 4. Plugins
 ----------
 
-AMX Mod X is in cryoffear/addons/amxmodx. Plugins go in plugins/ and are listed in configs/plugins.ini; admins in configs/users.ini. To compile a plugin, use the compiler in scripting/ (amxxpc). Include <cof> for Cry of Fear's weapon, ammo, item and monster names and notes on what differs from Half-Life (scripting/include/cof.inc): most Half-Life plugins work, plugins for Counter-Strike and other games do not.
+AMX Mod X is in cryoffear/addons/amxmodx. Plugins go in plugins/ and are listed in configs/plugins.ini; admins in configs/users.ini. To compile a plugin, use the compiler in scripting/ (amxxpc). Include <cof> for Cry of Fear's weapon, ammo, item and monster names and notes on what differs from Half-Life (scripting/include/cof.inc): most Half-Life plugins work, plugins for Counter-Strike and other games do not. The guide, with an example plugin: https://github.com/caixax/ReCoF-AMXX/blob/master/docs/cryoffear.md
 
 
 5. Server settings ReCoF adds
