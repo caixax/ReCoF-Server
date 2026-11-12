@@ -173,7 +173,7 @@ DECLARE_CVARHOOK_MOVEVARS(sv_skyvec_y);
 DECLARE_CVARHOOK_MOVEVARS(sv_skyvec_z);
 DECLARE_CVARHOOK_MOVEVARS(sv_skyname);
 
-cvar_t sv_skyname = { "sv_skyname", "desert", 0, 0.0f, NULL };
+cvar_t sv_skyname = { "sv_skyname", "black", 0, 0.0f, NULL };	// Cry of Fear (stock "desert")
 cvar_t mapcyclefile = { "mapcyclefile", "mapcycle.txt", 0, 0.0f, NULL };
 cvar_t motdfile = { "motdfile", "motd.txt", 0, 0.0f, NULL };
 cvar_t servercfgfile = { "servercfgfile", "server.cfg", 0, 0.0f, NULL };
@@ -6437,7 +6437,7 @@ int SV_SpawnServer(qboolean bIsDemo, char *server, char *startspot)
 		if (gEntityInterface.pfnGetGameDescription != NULL)
 			Cvar_Set("hostname", gEntityInterface.pfnGetGameDescription());
 		else
-			Cvar_Set("hostname", "Half-Life");
+			Cvar_Set("hostname", "Cry of Fear");
 	}
 
 	scr_centertime_off = 0.0f;
@@ -8818,7 +8818,7 @@ typedef struct GameToAppIDMapItem_s
 	const char *pGameDir;
 } GameToAppIDMapItem_t;
 
-GameToAppIDMapItem_t g_GameToAppIDMap[11] = {
+GameToAppIDMapItem_t g_GameToAppIDMap[12] = {
 	{ 0x0A, "cstrike" },
 	{ 0x14, "tfc" },
 	{ 0x1E, "dod" },
@@ -8830,6 +8830,7 @@ GameToAppIDMapItem_t g_GameToAppIDMap[11] = {
 	{ 0x64, "czeror" },
 	{ 0x82, "bshift" },
 	{ 0x96, "cstrike_beta" },
+	{ 223710, "cryoffear" },
 };
 
 int GetGameAppID(void)
@@ -8837,7 +8838,7 @@ int GetGameAppID(void)
 	char arg[260];
 	char gd[260];
 
-	COM_ParseDirectoryFromCmd("-game", gd, "valve");
+	COM_ParseDirectoryFromCmd("-game", gd, "cryoffear");
 	COM_FileBase(gd, arg);
 	for (int i = 0; i < ARRAYSIZE(g_GameToAppIDMap); i++)
 	{
@@ -8845,7 +8846,7 @@ int GetGameAppID(void)
 			return g_GameToAppIDMap[i].iAppID;
 	}
 
-	return 70;
+	return 223710;	// Cry of Fear: any other game dir is a Cry of Fear mod
 }
 
 qboolean IsGameSubscribed(const char *gameName)
@@ -8859,7 +8860,7 @@ qboolean IsGameSubscribed(const char *gameName)
 		}
 	}
 
-	return ISteamApps_BIsSubscribedApp(70);
+	return ISteamApps_BIsSubscribedApp(223710);
 #else //_WIN32
 	return 0;
 #endif

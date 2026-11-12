@@ -47,7 +47,7 @@ unsigned short *host_basepal;
 //unsigned char *host_colormap;
 //const char *g_InGameAdsAllowed[3];
 
-cvar_t host_name = { "hostname", "Half-Life", 0, 0.0f, NULL };
+cvar_t host_name = { "hostname", "Cry of Fear", 0, 0.0f, NULL };
 cvar_t host_speeds = { "host_speeds", "0", 0, 0.0f, NULL };
 cvar_t host_profile = { "host_profile", "0", 0, 0.0f, NULL };
 cvar_t developer = { "developer", "0", 0, 0.0f, NULL };
@@ -1035,7 +1035,7 @@ void Host_Version(void)
 	char szFileName[MAX_PATH];
 
 	Q_strcpy(gpszVersionString, "1.0.1.4");
-	Q_strcpy(gpszProductString, "valve");
+	Q_strcpy(gpszProductString, "cryoffear");
 	Q_strcpy(szFileName, "steam.inf");
 	FileHandle_t fp = FS_Open(szFileName, "r");
 	if (fp)
