@@ -861,6 +861,42 @@ void DLL_SetModKey(modinfo_t *pinfo, char *pkey, char *pvalue)
 
 }
 
+// Loads the game DLL that a liblist.gam line names (szValue), or the one -dll gives instead
+static void LoadGameDllEntry(char *szValue, int nValueSize, const char *szGameDir, char *szDllFilename, int nFilenameSize)
+{
+	int index = COM_CheckParm("-dll");
+	if (index && index < com_argc - 1)
+	{
+		Q_strncpy(szValue, com_argv[index + 1], nValueSize - 1);
+		szValue[nValueSize - 1] = 0;
+	}
+#ifdef REHLDS_FIXES
+	char *value_extension = Q_strrchr(szValue, '.');
+#ifdef _WIN32
+	if (value_extension && Q_strcmp(value_extension, ".dll") == 0)
+#else // _WIN32
+	if (value_extension && Q_strcmp(value_extension, ".so") == 0)
+#endif // _WIN32
+
+#else // REHLDS_FIXES
+#ifdef _WIN32
+	if (Q_strstr(szValue, ".dll"))
+#else // _WIN32
+	if (Q_strstr(szValue, ".so"))
+#endif // _WIN32
+
+#endif // REHLDS_FIXES
+	{
+		FS_GetLocalPath(szValue, szDllFilename, nFilenameSize);
+		Con_DPrintf("\nAdding:  %s/%s\n", szGameDir, szValue);
+		LoadThisDll(szDllFilename);
+	}
+	else
+	{
+		Con_DPrintf("Skipping non-dll:  %s\n", szValue);
+	}
+}
+
 void LoadEntityDLLs(const char *szBaseDir)
 {
 	FileHandle_t hLibListFile;
@@ -909,6 +945,11 @@ void LoadEntityDLLs(const char *szBaseDir)
 		pszInputStream[nFileSize2] = 0;
 		pStreamPos = pszInputStream;
 		com_ignorecolons = 1;
+#ifndef _WIN32
+		// Cry of Fear's liblist.gam names only its Windows game DLL (gamedll "cl_dlls/hl.dll")
+		char szWindowsDll[256] = "";
+		qboolean bFoundLinuxDll = FALSE;
+#endif // _WIN32
 		while (1)
 		{
 			pStreamPos = COM_Parse(pStreamPos);
@@ -920,6 +961,13 @@ void LoadEntityDLLs(const char *szBaseDir)
 			pStreamPos = COM_Parse(pStreamPos);
 			Q_strncpy(szValue, com_token, sizeof(szValue) - 1);
 			szValue[sizeof(szValue) - 1] = 0;
+#ifndef _WIN32
+			if (!Q_stricmp(szKey, "gamedll"))
+			{
+				Q_strncpy(szWindowsDll, szValue, sizeof(szWindowsDll) - 1);
+				szWindowsDll[sizeof(szWindowsDll) - 1] = 0;
+			}
+#endif // _WIN32
 #ifdef _WIN32
 			if (Q_stricmp(szKey, "gamedll"))
 #else // _WIN32
@@ -930,39 +978,25 @@ void LoadEntityDLLs(const char *szBaseDir)
 			}
 			else
 			{
-				int index = COM_CheckParm("-dll");
-				if (index && index < com_argc - 1)
-				{
-					Q_strncpy(szValue, com_argv[index + 1], sizeof(szValue) - 1);
-					szValue[sizeof(szValue) - 1] = 0;
-				}
-#ifdef REHLDS_FIXES
-				char *value_extension = Q_strrchr(szValue, '.');
-#ifdef _WIN32
-				if (value_extension && Q_strcmp(value_extension, ".dll") == 0)
-#else // _WIN32
-				if (value_extension && Q_strcmp(value_extension, ".so") == 0)
+#ifndef _WIN32
+				bFoundLinuxDll = TRUE;
 #endif // _WIN32
-
-#else // REHLDS_FIXES
-#ifdef _WIN32
-				if (Q_strstr(szValue, ".dll"))
-#else // _WIN32
-				if (Q_strstr(szValue, ".so"))
-#endif // _WIN32
-
-#endif // REHLDS_FIXES
-				{
-					FS_GetLocalPath(szValue, szDllFilename, sizeof(szDllFilename));
-					Con_DPrintf("\nAdding:  %s/%s\n", szGameDir, szValue);
-					LoadThisDll(szDllFilename);
-				}
-				else
-				{
-					Con_DPrintf("Skipping non-dll:  %s\n", szValue);
-				}
+				LoadGameDllEntry(szValue, sizeof(szValue), szGameDir, szDllFilename, sizeof(szDllFilename));
 			}
 		}
+#ifndef _WIN32
+		// Without a gamedll_linux line, the Windows name as a .so (cl_dlls/hl.so), or -dll, so the game files copied
+		// from a Windows install run as they are
+		if (!bFoundLinuxDll && szWindowsDll[0])
+		{
+			Q_strncpy(szValue, szWindowsDll, sizeof(szValue) - 1);
+			szValue[sizeof(szValue) - 1] = 0;
+			char *pExtension = Q_strrchr(szValue, '.');
+			if (pExtension && !Q_stricmp(pExtension, ".dll"))
+				Q_strcpy(pExtension, ".so");
+			LoadGameDllEntry(szValue, sizeof(szValue), szGameDir, szDllFilename, sizeof(szDllFilename));
+		}
+#endif // _WIN32
 		com_ignorecolons = 0;
 		Mem_Free(pszInputStream);
 		FS_Close(hLibListFile);
