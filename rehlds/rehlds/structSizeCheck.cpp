@@ -13,7 +13,9 @@ void check_size() {
 
 
 void checkSizesStatic() {
-	CHECK_TYPE_SIZE(client_t, 0x501C, 0x4EF8);	// Cry of Fear: lastcmd (usercmd_t) has is_donator, 4 bytes more
+	// Cry of Fear: lastcmd (usercmd_t) has is_donator, 4 bytes more; on Windows they fill the padding before the
+	// double that follows it, on Linux (doubles 4-aligned) client_t grows by 4
+	CHECK_TYPE_SIZE(client_t, 0x5018, 0x4EF8);
 	CHECK_TYPE_SIZE(userfilter_t, 0x20, 0x18);
 #ifndef REHLDS_FIXES
 	CHECK_TYPE_SIZE(CSteam3Server, 0x90, 0xA8);
