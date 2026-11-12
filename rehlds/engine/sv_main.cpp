@@ -8383,6 +8383,35 @@ static qboolean SV_AnyClientInGame(void)
 	return FALSE;
 }
 
+// ReCoF Server: when the last player leaves a dedicated server, the map loads again (sv_restart_empty 1), so the
+// next player finds it from its start rather than as the last one left it. Players count while they are connected
+// at all, so a level change, during which everyone reconnects, does not set it off; bots count as players.
+cvar_t sv_restart_empty = { "sv_restart_empty", "1", 0, 0.0f, NULL };
+
+static void SV_CheckEmptyRestart(void)
+{
+	static qboolean hadPlayers = FALSE;
+
+	if (g_pcls.state != ca_dedicated || g_psvs.maxclients <= 1 || !g_psv.active)
+		return;
+
+	for (int i = 0; i < g_psvs.maxclients; i++)
+	{
+		if (g_psvs.clients[i].connected || g_psvs.clients[i].active)
+		{
+			hadPlayers = TRUE;
+			return;
+		}
+	}
+
+	if (hadPlayers && sv_restart_empty.value)
+	{
+		hadPlayers = FALSE;
+		Con_Printf("Everyone left: loading %s again\n", g_psv.name);
+		Cbuf_AddText("restart\n");
+	}
+}
+
 qboolean SV_IsSimulating(void)
 {
 	if (g_psv.paused)
@@ -8448,6 +8477,7 @@ void EXT_FUNC SV_Frame_Internal()
 	SV_CheckMapDifferences();
 	SV_GatherStatistics();
 	SV_CheckVoiceChanges();	// Cry of Fear
+	SV_CheckEmptyRestart();	// ReCoF Server
 	Steam_RunFrame();
 }
 
@@ -8578,6 +8608,7 @@ void SV_Init(void)
 	Cvar_RegisterVariable(&sv_voiceenable);
 	Cvar_RegisterVariable(&sv_voicecodec);
 	Cvar_RegisterVariable(&sv_pause_empty);
+	Cvar_RegisterVariable(&sv_restart_empty);
 	Cvar_RegisterVariable(&sv_voicequality);
 	Cvar_RegisterVariable(&rcon_password);
 	Cvar_RegisterVariable(&sv_enableoldqueries);
