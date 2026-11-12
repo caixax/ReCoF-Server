@@ -9,8 +9,10 @@ It is a fork of [ReHLDS](https://github.com/rehlds/ReHLDS), the reverse-engineer
 - its identity: Steam app id 223710, `cryoffear` as the default game folder and product, hostname "Cry of Fear", sky `black`;
 - its behaviour where it differs: a model set without precache shows `models/error.mdl` instead of stopping the server, model names are looked up without case, and the voice codec and view roll are sent as Cry of Fear's engine sends them.
 
+And one thing for a server, which Cry of Fear never had: with nobody in the game the map waits (`sv_pause_empty 1`, the default), so its music, cameras and scripts start when the first player arrives instead of playing to an empty server.
+
 > [!IMPORTANT]
-> Work in progress. The server runs every co-op map with the game DLL; the server game DLL for Linux, support for a server with no player at the keyboard, the ReCoF-only check, Metamod-R and AMX Mod X for Cry of Fear, and the server package come next. Nothing here is ready for a public server yet.
+> Work in progress. The server runs every co-op map with ReCoF's game DLL, which takes ReCoF players only and handles a server with nobody at the keyboard. The game DLL for Linux, Metamod-R and AMX Mod X for Cry of Fear, and the server package come next. Nothing here is ready for a public server yet.
 
 ## Building
 
