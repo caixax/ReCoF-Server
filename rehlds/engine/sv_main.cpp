@@ -8369,13 +8369,31 @@ void SV_CheckForRcon(void)
 	}
 }
 
+// ReCoF Server: Cry of Fear maps start their music, cameras and scripts as soon as they run; on a dedicated server
+// with nobody in the game they would play to no one, so the map waits for the first player (sv_pause_empty 1)
+cvar_t sv_pause_empty = { "sv_pause_empty", "1", 0, 0.0f, NULL };
+
+static qboolean SV_AnyClientInGame(void)
+{
+	for (int i = 0; i < g_psvs.maxclients; i++)
+	{
+		if (g_psvs.clients[i].active)
+			return TRUE;
+	}
+	return FALSE;
+}
+
 qboolean SV_IsSimulating(void)
 {
 	if (g_psv.paused)
 		return FALSE;
 
 	if (g_psvs.maxclients > 1)
+	{
+		if (g_pcls.state == ca_dedicated && sv_pause_empty.value && !SV_AnyClientInGame())
+			return FALSE;
 		return TRUE;
+	}
 
 	if (!key_dest && (g_pcls.state == ca_active || g_pcls.state == ca_dedicated))
 		return TRUE;
@@ -8559,6 +8577,7 @@ void SV_Init(void)
 	Cvar_RegisterVariable(&sv_failuretime);
 	Cvar_RegisterVariable(&sv_voiceenable);
 	Cvar_RegisterVariable(&sv_voicecodec);
+	Cvar_RegisterVariable(&sv_pause_empty);
 	Cvar_RegisterVariable(&sv_voicequality);
 	Cvar_RegisterVariable(&rcon_password);
 	Cvar_RegisterVariable(&sv_enableoldqueries);
