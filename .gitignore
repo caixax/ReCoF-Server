@@ -20,3 +20,7 @@
 **/msvc/ipch
 
 rehlds/version/appversion.h
+
+# ReCoF Server packages
+dist/
+!package/**/*.bat
