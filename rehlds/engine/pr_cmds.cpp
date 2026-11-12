@@ -122,13 +122,8 @@ void EXT_FUNC PF_setmodel_I(edict_t *e, const char *m)
 #endif
 	{
 
-		//use case-sensitive names to increase performance
-#ifdef REHLDS_FIXES
-		if (!Q_strcmp(*check, m))
-#else
+		// Cry of Fear: names compare without case, as in its engine; its maps and game DLL do not always agree on case
 		if (!Q_stricmp(*check, m))
-#endif
-
 		{
 			e->v.modelindex = i;
 			model_t *mod = g_psv.models[i];
@@ -147,6 +142,22 @@ void EXT_FUNC PF_setmodel_I(edict_t *e, const char *m)
 			}
 
 			return;
+		}
+	}
+
+	// Cry of Fear: a model set without precache warns and shows models/error.mdl instead of stopping the server
+	// (its engine's PF_setmodel_I). Retail calls itself without a guard; here the fallback is tried once.
+	static const char szErrorModel[] = "models/error.mdl";
+	if (Q_stricmp(m, szErrorModel))
+	{
+		Con_Printf("Warning! No precache on model %s\n", m);
+		for (check = &g_psv.model_precache[0]; *check; check++)
+		{
+			if (!Q_stricmp(*check, szErrorModel))
+			{
+				PF_setmodel_I(e, *check);
+				return;
+			}
 		}
 	}
 

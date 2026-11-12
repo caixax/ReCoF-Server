@@ -148,10 +148,10 @@ typedef struct server_s
 
 struct rehlds_server_t {
 	// map for sv.model_precache (for faster resolving of model index by its name)
-#if defined(REHLDS_FIXES)
-	CStringKeyStaticMap<int, 7, MAX_MODELS * 2> modelsMap; // case-sensitive keys for better performance
-#elif defined(REHLDS_OPT_PEDANTIC)
-	CICaseStringKeyStaticMap<int, 7, MAX_MODELS * 2> modelsMap; // use case-insensitive keys to conform original engine's behavior
+#if defined(REHLDS_FIXES) || defined(REHLDS_OPT_PEDANTIC)
+	// Cry of Fear: case-insensitive keys, as its engine looks models up; a case-sensitive map made SV_ModelIndex
+	// stop the server on a name whose case differs from the precache
+	CICaseStringKeyStaticMap<int, 7, MAX_MODELS * 2> modelsMap;
 #endif
 
 #ifdef REHLDS_FIXES
