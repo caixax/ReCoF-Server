@@ -223,6 +223,7 @@ static delta_definition_t g_UsercmdDataDefinition[] =
 	DELTA_DEF(usercmd_s, impact_position[0]),
 	DELTA_DEF(usercmd_s, impact_position[1]),
 	DELTA_DEF(usercmd_s, impact_position[2]),
+	DELTA_DEF(usercmd_s, is_donator),	// Cry of Fear (delta.lst)
 };
 
 static delta_definition_t g_WeaponDataDefinition[] =
@@ -309,6 +310,7 @@ static delta_definition_t g_ClientDataDefinition[] =
 	DELTA_DEF(clientdata_s, vuser4[0]),
 	DELTA_DEF(clientdata_s, vuser4[1]),
 	DELTA_DEF(clientdata_s, vuser4[2]),
+	DELTA_DEF(clientdata_s, isdonator),	// Cry of Fear
 };
 
 #endif // Delta_definitions_region

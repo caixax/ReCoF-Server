@@ -111,6 +111,7 @@ typedef struct entvars_s
 	float		friction;		// inverse elasticity of MOVETYPE_BOUNCE
 	
 	int			light_level;
+	int			cof_reserved;	// Cry of Fear: 4 more bytes here, never read, not saved
 
 	int			sequence;		// animation sequence
 	int			gaitsequence;	// movement animation sequence for player (0 for none)
@@ -218,6 +219,8 @@ typedef struct entvars_s
 	edict_t		*euser2;
 	edict_t		*euser3;
 	edict_t		*euser4;
+
+	int			is_donator;		// Cry of Fear: usercmd_t.is_donator of the player's last command, not saved
 } entvars_t;
 
 

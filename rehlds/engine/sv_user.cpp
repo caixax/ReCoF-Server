@@ -993,6 +993,7 @@ void SV_RunCmd(usercmd_t* ucmd, int random_seed, qboolean fNetCmd, qboolean fCho
 #ifdef REHLDS_FIXES
 	sv_player->v.light_level = ucmd->lightlevel;
 #endif // REHLDS_FIXES
+	sv_player->v.is_donator = ucmd->is_donator;	// Cry of Fear: before the game DLL's PreThink
 
 	SV_CheckMovingGround(sv_player, frametime);
 
@@ -1663,6 +1664,7 @@ void SV_ParseMove(client_t *pSenderClient)
 	// SV_RunCmd sets both of them as well
 	sv_player->v.button = cmds[CMD_MOSTRECENT].buttons;
 	sv_player->v.light_level = cmds[CMD_MOSTRECENT].lightlevel;
+	sv_player->v.is_donator = cmds[CMD_MOSTRECENT].is_donator;	// Cry of Fear
 #endif // REHLDS_FIXES
 
 	SV_EstablishTimeBase(host_client, cmds, net_drop, numbackup, numcmds);

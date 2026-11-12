@@ -193,6 +193,7 @@ Delta::delta_definition_t Delta::m_UsercmdDataDefinition[] =
 	DELTA_DEF(usercmd_s, impact_position[0]),
 	DELTA_DEF(usercmd_s, impact_position[1]),
 	DELTA_DEF(usercmd_s, impact_position[2]),
+	DELTA_DEF(usercmd_s, is_donator),	// Cry of Fear (delta.lst)
 };
 
 Delta::delta_definition_t Delta::m_WeaponDataDefinition[] =
@@ -279,6 +280,7 @@ Delta::delta_definition_t Delta::m_ClientDataDefinition[] =
 	DELTA_DEF(clientdata_s, vuser4[0]),
 	DELTA_DEF(clientdata_s, vuser4[1]),
 	DELTA_DEF(clientdata_s, vuser4[2]),
+	DELTA_DEF(clientdata_s, isdonator),	// Cry of Fear
 };
 
 void Delta::Init(IBaseSystem *system)

@@ -36,6 +36,10 @@ typedef struct usercmd_s
 // Experimental player impact stuff.
 	int		impact_index;
 	vec3_t	impact_position;
+
+	// Cry of Fear: the donator level (0, 1 or 3) the client sends with every command; delta.lst declares it and
+	// the engine copies it into entvars_t.is_donator
+	int		is_donator;
 } usercmd_t;
 
 #endif // USERCMD_H
