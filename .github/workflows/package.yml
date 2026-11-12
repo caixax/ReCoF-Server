@@ -1,0 +1,135 @@
+name: Package
+
+# The Linux server package, ReCoF-Server-<version>-linux.tar.gz: the engine of this repository, ReCoF's game DLL
+# (hl.so), Metamod-R and AMX Mod X, each built from its public source on Debian 11, so the package runs on Debian 11,
+# Ubuntu 20.04 and newer. The Windows package is assembled with tools/make_package.py from Windows builds.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version
+        required: true
+        default: 0.1.0
+      recof_ref:
+        description: ReCoF branch, tag or commit for hl.so
+        required: true
+        default: main
+
+jobs:
+  linux:
+    name: Linux package
+    runs-on: ubuntu-24.04
+    container: debian:11-slim
+    steps:
+      - name: Install dependencies
+        run: |
+          # as in build.yml: Debian 11's base suite from the archive, its security suite from the last snapshot
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://archive.debian.org/debian bullseye main
+          deb http://archive.debian.org/debian bullseye-updates main
+          EOF
+          apt-get -o Acquire::Check-Valid-Until=false update
+          apt-get install -y --no-install-recommends ca-certificates
+          echo 'deb https://snapshot-cloudflare.debian.org/archive/debian-security/20260831T000000Z bullseye-security main' > /etc/apt/sources.list.d/bullseye-security.list
+          apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=5 update
+          apt-get -o Acquire::Retries=5 install -y \
+            gcc-multilib g++-multilib build-essential libc6-dev libc6-dev-i386 git cmake nasm python3 python3-pip binutils
+
+      - name: Configure git
+        run: git config --global --add safe.directory '*'
+
+      - name: Checkout ReCoF Server
+        uses: actions/checkout@v4
+        with:
+          path: server
+          fetch-depth: 0
+
+      - name: Checkout ReCoF
+        uses: actions/checkout@v4
+        with:
+          repository: caixax/ReCoF
+          ref: ${{ inputs.recof_ref || 'main' }}
+          path: recof
+
+      - name: Checkout ReCoF-Metamod
+        uses: actions/checkout@v4
+        with:
+          repository: caixax/ReCoF-Metamod
+          path: metamod
+
+      - name: Checkout ReCoF-AMXX
+        uses: actions/checkout@v4
+        with:
+          repository: caixax/ReCoF-AMXX
+          path: amxx
+          submodules: recursive
+          # AMX Mod X takes its build number from the history
+          fetch-depth: 0
+
+      - name: Checkout ReCoF-HLSDK
+        uses: actions/checkout@v4
+        with:
+          repository: caixax/ReCoF-HLSDK
+          path: hlsdk
+
+      - name: Checkout Metamod headers and AMBuild
+        run: |
+          git clone --depth 1 https://github.com/alliedmodders/metamod-hl1 metamod-am
+          git clone --depth 1 https://github.com/alliedmodders/ambuild ambuild
+          pip3 install ./ambuild
+
+      - name: Build the engine
+        working-directory: server
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -B build
+          cmake --build build -j"$(nproc)" --target engine hlds filesystem_stdio
+          mkdir -p ../out/engine
+          cp build/rehlds/engine_i486.so build/rehlds/dedicated/hlds_linux build/rehlds/filesystem/FileSystem_Stdio/filesystem_stdio.so ../out/engine/
+
+      - name: Build hl.so
+        working-directory: recof
+        run: python3 tools/build_linux.py --out build/linux
+
+      - name: Build Metamod-R
+        working-directory: metamod
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -B build
+          cmake --build build -j"$(nproc)"
+
+      - name: Build AMX Mod X
+        working-directory: amxx
+        run: |
+          mkdir -p build && cd build
+          python3 ../configure.py --enable-optimize --no-mysql "--hlsdk=$GITHUB_WORKSPACE/hlsdk" "--metamod=$GITHUB_WORKSPACE/metamod-am"
+          ambuild
+
+      - name: Package
+        run: |
+          version='${{ inputs.version }}'
+          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          python3 server/tools/make_package.py --platform linux --version "$version" \
+            --engine out/engine --hl recof/build/linux/hl.so \
+            --metamod metamod/build/metamod/metamod_i386.so \
+            --amxx amxx/build/packages/base/addons/amxmodx --amxx-repo amxx \
+            --out dist --sources \
+            "ReCoF-Server=$(git -C server rev-parse --short=10 HEAD)" \
+            "ReCoF=$(git -C recof rev-parse --short=10 HEAD)" \
+            "ReCoF-Metamod=$(git -C metamod rev-parse --short=10 HEAD)" \
+            "ReCoF-AMXX=$(git -C amxx rev-parse --short=10 HEAD)" \
+            "ReCoF-HLSDK=$(git -C hlsdk rev-parse --short=10 HEAD)"
+
+      - name: Check the C library it needs
+        run: |
+          # the newest glibc symbol version each binary needs: 2.31 or older runs on Debian 11 and Ubuntu 20.04
+          for f in $(find dist -name '*.so' -o -name hlds_linux -type f); do
+            printf '%s: ' "$f"; objdump -T "$f" | grep -o 'GLIBC_[0-9.]*' | sort -Vu | tail -1
+          done
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: recof-server-linux-package
+          path: dist/*.tar.gz
