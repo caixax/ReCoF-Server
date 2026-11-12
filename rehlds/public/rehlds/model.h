@@ -53,7 +53,7 @@
 #define MIPLEVELS			4
 #define NUM_AMBIENTS		4		// automatic ambient sounds
 #define MAXLIGHTMAPS		4
-#define MAX_KNOWN_MODELS	1024
+#define MAX_KNOWN_MODELS	1536	// Cry of Fear (stock 1024), so 768 models and the brush submodels fit
 
 typedef struct mvertex_s
 {

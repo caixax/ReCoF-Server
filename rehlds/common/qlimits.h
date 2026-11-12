@@ -27,14 +27,16 @@
 constexpr auto MAX_LIGHTSTYLE_SIZE = size_t{64};
 
 // Resource counts
-#define MAX_MODEL_INDEX_BITS		9	// sent as a short
-#define MAX_MODELS			(1<<MAX_MODEL_INDEX_BITS)
-#define MAX_SOUND_INDEX_BITS		9
-#define MAX_SOUNDS			(1<<MAX_SOUND_INDEX_BITS)
+// Cry of Fear raised models, sounds and generic files to 768 each (quakedef.h of its engine); its client sizes
+// its own precache arrays the same, so 768 is also the ceiling
+#define MAX_MODEL_INDEX_BITS		10	// sent as a short
+#define MAX_MODELS			768
+#define MAX_SOUND_INDEX_BITS		10
+#define MAX_SOUNDS			768
 #define MAX_SOUNDS_HASHLOOKUP_SIZE	(MAX_SOUNDS * 2 - 1)
 
-#define MAX_GENERIC_INDEX_BITS		9
-#define MAX_GENERIC			(1<<MAX_GENERIC_INDEX_BITS)
+#define MAX_GENERIC_INDEX_BITS		10
+#define MAX_GENERIC			768
 #define MAX_DECAL_INDEX_BITS		9
 #define MAX_BASE_DECALS			(1<<MAX_DECAL_INDEX_BITS)
 

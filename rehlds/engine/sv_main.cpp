@@ -854,7 +854,7 @@ int EXT_FUNC SV_LookupSoundIndex(const char *sample)
 		SV_BuildHashedSoundLookupTable();
 	}
 
-	int starting_index = SV_HashString(sample, 1023);
+	int starting_index = SV_HashString(sample, MAX_SOUNDS_HASHLOOKUP_SIZE);	// was 1023, the stock table size
 	index = starting_index;
 	while (g_psv.sound_precache_hashedlookup[index])
 	{

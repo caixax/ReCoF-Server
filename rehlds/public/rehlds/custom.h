@@ -18,7 +18,7 @@
 #include "const.h"
 
 #define MAX_QPATH 64    // Must match value in quakedefs.h
-#define MAX_RESOURCE_LIST	1280
+#define MAX_RESOURCE_LIST	1792	// Cry of Fear: 768 models + 768 sounds + 256 (stock 1280)
 
 /////////////////
 // Customization
