@@ -1,3 +1,32 @@
+# ReCoF Server
+
+A dedicated server for [Cry of Fear](https://store.steampowered.com/app/223710/) players on [ReCoF](https://github.com/caixax/ReCoF), so people can host co-op servers on Windows or a Linux VPS, with Metamod and AMX Mod X plugins later on.
+
+It is a fork of [ReHLDS](https://github.com/rehlds/ReHLDS), the reverse-engineered Half-Life dedicated server. Cry of Fear changed the GoldSrc engine, so Valve's stock server stops at `Couldn't find offset for is_donator!!!` and the game's own engine cannot run without a window; this fork carries Cry of Fear's server-side engine changes into ReHLDS:
+
+- the fields Cry of Fear added to the structures the engine shares with the game DLL and the network (`usercmd_t.is_donator`, `clientdata_t.isdonator`, two `entvars_t` fields, so `edict_t` is 0x32C bytes), with their delta definitions;
+- its limits: 768 models, sounds and generic files, 1792 resources, 1536 known models, at least 2048 edicts;
+- its identity: Steam app id 223710, `cryoffear` as the default game folder and product, hostname "Cry of Fear", sky `black`;
+- its behaviour where it differs: a model set without precache shows `models/error.mdl` instead of stopping the server, model names are looked up without case, and the voice codec and view roll are sent as Cry of Fear's engine sends them.
+
+> [!IMPORTANT]
+> Work in progress. The server runs every co-op map with the game DLL; the server game DLL for Linux, support for a server with no player at the keyboard, the ReCoF-only check, Metamod-R and AMX Mod X for Cry of Fear, and the server package come next. Nothing here is ready for a public server yet.
+
+## Building
+
+- Windows: Visual Studio 2019 or 2022 with the C++ tools, then `msbuild msvc/ReHLDS.sln /m "/t:ReHLDS;dedicated;filesystem_stdio" /p:Configuration=Release /p:Platform=Win32` (add `/p:PlatformToolset=v143` with Visual Studio 2022). The files land in `msvc/Release`.
+- Linux: the packages `gcc-multilib g++-multilib build-essential libc6-dev libc6-dev-i386 cmake`, then `cmake -DCMAKE_BUILD_TYPE=Release -B build` and `cmake --build build --target engine hlds filesystem_stdio`. Build on the oldest system the server has to run on; the CI builds on Debian 11.
+
+The server also needs Steam's server runtime (`steamclient`), as every GoldSrc server does, and the Cry of Fear game files from your own copy of the game.
+
+## Credits and license
+
+ReHLDS is the work of the [ReHLDS team](https://github.com/rehlds/ReHLDS) and is MIT licensed (see [LICENSE](LICENSE) and [LICENSE-TRANSITION.md](LICENSE-TRANSITION.md)); this fork keeps that license. Cry of Fear is by Team Psykskallar, the GoldSrc engine by Valve. This project is not affiliated with or endorsed by either.
+
+The original ReHLDS README follows.
+
+---
+
 # ReHLDS [![C/C++ CI](https://github.com/rehlds/ReHLDS/actions/workflows/build.yml/badge.svg)](https://github.com/rehlds/ReHLDS/actions/workflows/build.yml) [![GitHub release (by tag)](https://img.shields.io/github/downloads/rehlds/ReHLDS/latest/total)](https://github.com/rehlds/ReHLDS/releases/latest) ![GitHub all releases](https://img.shields.io/github/downloads/rehlds/ReHLDS/total) [![Percentage of issues still open](http://isitmaintained.com/badge/open/rehlds/ReHLDS.svg)](http://isitmaintained.com/project/rehlds/ReHLDS "Percentage of issues still open") [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://www.gnu.org/licenses/gpl-3.0)  [![CII Best Practices](https://bestpractices.dev/projects/10929/badge)](https://www.bestpractices.dev/en/projects/10929) <img align="right" src="https://user-images.githubusercontent.com/5860435/111066129-040e5e00-84f0-11eb-9e1f-7a7e8611da2b.png" alt="ReHLDS" />
 Reverse-engineered (and bugfixed) HLDS
 
