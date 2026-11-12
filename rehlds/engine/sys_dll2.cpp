@@ -652,12 +652,26 @@ bool CDedicatedServerAPI::Init(const char *basedir, const char *cmdline, CreateI
 #else
 	Q_strcpy(this->m_OrigCmd, cmdline);
 #endif
+	TraceInit("Sys_InitArgv( m_OrigCmd )", "Sys_ShutdownArgv()", 0);
+	Sys_InitArgv(m_OrigCmd);
+
+	// Steam's crash handler starts Steam's code, which reads steam_appid.txt. Without that file, as on a server's
+	// first start, Steam fails to load SDL3.dll and its connection hangs or the server crashes: write it first.
+	int nAppId = GetGameAppID();
+	if (nAppId > 0)
+	{
+		FILE *f = fopen("steam_appid.txt", "w+");
+		if (f)
+		{
+			fprintf(f, "%d\n", nAppId);
+			fclose(f);
+		}
+	}
+
 	if (!Q_strstr(cmdline, "-nobreakpad"))
 	{
 		CRehldsPlatformHolder::get()->SteamAPI_UseBreakpadCrashHandler(va("%d", build_number()), __BUILD_DATE__, __BUILD_TIME__, 0, 0, 0);
 	}
-	TraceInit("Sys_InitArgv( m_OrigCmd )", "Sys_ShutdownArgv()", 0);
-	Sys_InitArgv(m_OrigCmd);
 	eng->SetQuitting(IEngine::QUIT_NOTQUITTING);
 	registry->Init();
 
