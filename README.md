@@ -1,6 +1,6 @@
 # ReCoF Server
 
-A dedicated server for [Cry of Fear](https://store.steampowered.com/app/223710/) players on [ReCoF](https://github.com/caixax/ReCoF), so people can host co-op servers on Windows or a Linux VPS, with Metamod and AMX Mod X plugins later on.
+A dedicated server for [Cry of Fear](https://store.steampowered.com/app/223710/) players on [ReCoF](https://github.com/caixax/ReCoF), so people can host co-op servers on Windows or a Linux VPS, with Metamod-R and AMX Mod X plugins.
 
 It is a fork of [ReHLDS](https://github.com/rehlds/ReHLDS), the reverse-engineered Half-Life dedicated server. Cry of Fear changed the GoldSrc engine, so Valve's stock server stops at `Couldn't find offset for is_donator!!!` and the game's own engine cannot run without a window; this fork carries Cry of Fear's server-side engine changes into ReHLDS:
 
@@ -11,8 +11,19 @@ It is a fork of [ReHLDS](https://github.com/rehlds/ReHLDS), the reverse-engineer
 
 And two things for a server, which Cry of Fear never had: with nobody in the game the map waits (`sv_pause_empty 1`, the default), so its music, cameras and scripts start when the first player arrives instead of playing to an empty server; and when the last player leaves, the map loads again (`sv_restart_empty 1`), so the next one finds it from its start.
 
+Two fixes for setting a server up: the server writes `steam_appid.txt` before Steam's crash handler starts, so a server's first start no longer hangs on the Steam connection or crashes; and on Linux, a `liblist.gam` without a `gamedll_linux` line (Cry of Fear's has none) loads its `gamedll` as a `.so`, so the game folder copied from a Windows install runs as it is.
+
 > [!IMPORTANT]
-> Work in progress. The server runs every co-op map with ReCoF's game DLL, which takes ReCoF players only and handles a server with nobody at the keyboard. The game DLL for Linux, Metamod-R and AMX Mod X for Cry of Fear, and the server package come next. Nothing here is ready for a public server yet.
+> Being tested. The server package starts on Windows and Linux and runs every co-op map with ReCoF's game DLL (which takes ReCoF players only), Metamod-R and AMX Mod X with its plugins. Games with players joining are still being tested.
+
+## Server package
+
+The package has the server, ReCoF's game DLL, Metamod-R and AMX Mod X for Cry of Fear, start scripts, a `server.cfg` and a setup guide ([package/common/README-SERVER.txt](package/common/README-SERVER.txt)); the owner adds the game files from their own copy of Cry of Fear and Steam's server files. The Linux package is built on Debian 11 by the [Package](.github/workflows/package.yml) workflow from the public sources of every part; the Windows one is assembled with `tools/make_package.py` from Windows builds. The parts:
+
+- [ReCoF](https://github.com/caixax/ReCoF): the game DLL, `hl.dll` and `hl.so`;
+- [ReCoF-Metamod](https://github.com/caixax/ReCoF-Metamod): Metamod-R with Cry of Fear's structures and game entry;
+- [ReCoF-AMXX](https://github.com/caixax/ReCoF-AMXX): AMX Mod X with Cry of Fear's gamedata, Ham Sandwich slots and `cof.inc`;
+- [ReCoF-HLSDK](https://github.com/caixax/ReCoF-HLSDK): the SDK headers with Cry of Fear's structure fields, which AMX Mod X builds against.
 
 ## Building
 
