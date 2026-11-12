@@ -13,6 +13,11 @@ if [ ! -f "cryoffear/maps/$MAP.bsp" ]; then
 	echo "The Cry of Fear game files are missing: copy the cryoffear folder of your game here. See README-SERVER.txt."
 	exit 1
 fi
+# a partial copy loads the maps but stops the server when a player draws a weapon whose model is missing
+if [ ! -f cryoffear/police/models/weapons/p345/p_p345.mdl ] || [ ! -f cryoffear/gfx.wad ]; then
+	echo "The cryoffear folder here is incomplete: copy the whole cryoffear folder of your game, every file and folder in it."
+	exit 1
+fi
 if [ ! -f steamclient.so ]; then
 	echo "steamclient.so is missing. See README-SERVER.txt."
 	exit 1

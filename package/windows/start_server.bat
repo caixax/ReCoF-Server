@@ -13,6 +13,15 @@ if not exist cryoffear\maps\%MAP%.bsp (
 	pause
 	exit /b 1
 )
+rem a partial copy loads the maps but stops the server when a player draws a weapon whose model is missing
+if not exist cryoffear\police\models\weapons\p345\p_p345.mdl goto partial
+if not exist cryoffear\gfx.wad goto partial
+goto files_ok
+:partial
+echo The cryoffear folder here is incomplete: copy the whole cryoffear folder of your game, every file and folder in it.
+pause
+exit /b 1
+:files_ok
 if not exist steamclient.dll (
 	echo steamclient.dll, tier0_s.dll and vstdlib_s.dll are missing. See README-SERVER.txt.
 	pause
